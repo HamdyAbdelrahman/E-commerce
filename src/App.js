@@ -1,25 +1,45 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
+import Layout from './layout.jsx';
+import Navbar from './navbar/index.jsx';
+import ProductList from './productList';
+import SearchForm from './searchForm/index.jsx';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('https://api.example.com/products');
+        const data = await response.json();
+        setProducts(data.products);
+        setFilteredProducts(data.products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+        setFilteredProducts([]);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleSearch = (searchTerm) => {
+    const filtered = products.filter((product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout>
+      <Navbar />
+      <SearchForm handleSearch={handleSearch} />
+      <ProductList products={filteredProducts} />
+    </Layout>
   );
-}
+};
 
 export default App;
